@@ -1,0 +1,53 @@
+plugins {
+    id 'java'
+}
+
+group 'org.example'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
+
+    testImplementation 'io.rest-assured:rest-assured:5.1.1'
+    testImplementation 'io.rest-assured:json-path:5.1.1'
+    testImplementation 'io.rest-assured:json-schema-validator:5.1.1'
+    implementation 'io.rest-assured:rest-assured-common:5.1.1'
+    implementation 'io.rest-assured:rest-assured-all:5.1.1'
+    implementation 'org.json:json:20220320'
+
+    implementation 'io.cucumber:cucumber-java:7.4.1'
+    testImplementation 'io.cucumber:cucumber-junit:7.4.1'
+    implementation 'net.masterthought:cucumber-reporting:5.7.2'
+
+}
+
+test {
+    useJUnitPlatform()
+}
+
+configurations {
+    cucumberRuntime {
+        extendsFrom testImplementation
+    }
+}
+
+// gradle clean cucumber -Psuite=@Clean
+task cucumber() {
+    dependsOn assemble, testClasses
+    doLast {
+        javaexec {
+            main = "io.cucumber.core.cli.Main"
+            classpath = configurations.cucumberRuntime + sourceSets.main.output + sourceSets.test.output
+            //      reporte       - donde estaran nuestros steps -  donde estan los archivos.feature
+            //  args = ['--plugin', 'html:build/reports/cucumber/report.html', '--glue', 'runner',           'src/test/resources' , '--tags']+[suite]
+            //args = ['--plugin', 'json:build/reports/cucumber/report.json', '--glue', 'runner',           'src/test/resources' , '--tags']+[suite]
+            args = ['--plugin', 'pretty', '--glue', 'steps',           'src/test/resources']
+
+        }
+    }
+}
